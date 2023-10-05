@@ -7,6 +7,7 @@ ThreadPool::~ThreadPool() {
 }
 
 void ThreadPool::startWorkers() {
+    log_->info("[ThreadPool::startWorkers] starting work in '", threads_count_, "' threads");
     for (int i = 0; i < threads_count_; ++i) {
         workers_.emplace_back([this] {
             while (true) {
