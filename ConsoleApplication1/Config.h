@@ -7,6 +7,7 @@ struct Config {
 
 	int port = 8080;
 	int threads_num = 1;
+	int cache_interval = 1;
 
 	void parse();
 };

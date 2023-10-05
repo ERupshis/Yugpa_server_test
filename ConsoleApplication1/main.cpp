@@ -4,9 +4,8 @@
 #include <cstdlib>
 
 #include "Config.h"
+#include "Log.h"
 #include "Server.h"
-
-
 
 volatile sig_atomic_t g_shutdownFlag = 0;
 
@@ -24,7 +23,8 @@ int main() {
     Config cfg(8080, 4);
     cfg.parse();
 
-    std::unique_ptr<Server> server = std::make_unique<Server>(cfg.port, cfg.threads_num);
+    std::shared_ptr<Log> log = std::make_shared<Log>();
+    std::unique_ptr<Server> server = std::make_unique<Server>(cfg, log);
 
     try {
         server->start();

@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cache.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Encoder.cpp" />
@@ -150,8 +151,10 @@
     <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cache.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Encoder.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="RequestHandler.h" />
     <ClInclude Include="Server.h" />

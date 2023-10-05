@@ -25,7 +25,11 @@ int parseInteger(const char* name) {
 void Config::parse() {
 	int port_val = parseInteger("PORT");
 	port = (port_val == 0) ? port : port_val;
+
 	int thread_num_val = parseInteger("THREADS_NUM");
 	threads_num = (thread_num_val == 0) ? threads_num : thread_num_val;
+
+	int cache_interval_val = parseInteger("CACHE_INTERVAL");
+	cache_interval = (cache_interval_val == 0) ? cache_interval : cache_interval_val;
 }
 

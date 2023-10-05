@@ -13,6 +13,18 @@
     <Filter Include="Config">
       <UniqueIdentifier>{ca68cb85-5298-409e-8c3c-e86a03074e21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Server\Cache">
+      <UniqueIdentifier>{d16f7d90-c17e-4b7e-9d1c-955af2b6e1d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Server\RequestHandler">
+      <UniqueIdentifier>{188cb54f-d2f4-4bce-b73a-76338bb968ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Server\ThreadPool">
+      <UniqueIdentifier>{a46cfc82-7c65-4d79-a25b-9fad1e7395d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log">
+      <UniqueIdentifier>{9efdce87-13a4-4b83-a8ec-b2df0247d3c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Messages.cpp">
@@ -21,18 +33,21 @@
     <ClCompile Include="Encoder.cpp">
       <Filter>Encoder</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadPool.cpp">
-      <Filter>Server</Filter>
-    </ClCompile>
     <ClCompile Include="Server.cpp">
-      <Filter>Server</Filter>
-    </ClCompile>
-    <ClCompile Include="RequestHandler.cpp">
       <Filter>Server</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Config.cpp">
       <Filter>Config</Filter>
+    </ClCompile>
+    <ClCompile Include="Cache.cpp">
+      <Filter>Server\Cache</Filter>
+    </ClCompile>
+    <ClCompile Include="RequestHandler.cpp">
+      <Filter>Server\RequestHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadPool.cpp">
+      <Filter>Server\ThreadPool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,17 +60,23 @@
     <ClInclude Include="Server.h">
       <Filter>Server</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadPool.h">
-      <Filter>Server</Filter>
-    </ClInclude>
-    <ClInclude Include="RequestHandler.h">
-      <Filter>Server</Filter>
-    </ClInclude>
     <ClInclude Include="ServerErrors.h">
       <Filter>Server</Filter>
     </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>Config</Filter>
+    </ClInclude>
+    <ClInclude Include="Cache.h">
+      <Filter>Server\Cache</Filter>
+    </ClInclude>
+    <ClInclude Include="RequestHandler.h">
+      <Filter>Server\RequestHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Server\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Log</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

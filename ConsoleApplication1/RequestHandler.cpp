@@ -2,19 +2,26 @@
 
 #include <iostream>
 #include <filesystem>
+#include <chrono>
 
 #include "Encoder.h"
 #include "ServerErrors.h"
+#include "ThreadPool.h"
+
+using timestamp = std::chrono::system_clock::time_point;
+
 
 void RequestHandler::operator()() {
+    messages::Request req_msg;
+
     std::stringstream response_stream;
     messages::Response resp_msg;
 
-    std::cout << "start handling request in thread: " << std::this_thread::get_id() << std::endl;
+    log_->info("[RequestHandler::operator()] start handling request in thread: ",  std::this_thread::get_id());
 
     try {
         if (!client_socket_->is_open()) {
-            std::cerr << "Socket is not open." << std::endl;
+            log_->info("[RequestHandler::operator()] socket is not open in thread: ", std::this_thread::get_id());
             return;
         }
 
@@ -25,36 +32,41 @@ void RequestHandler::operator()() {
             resp_msg.status = status;
         } 
         else {
-            messages::Request req_msg;
             Encoder::Deserialize(req_msg, request_stream);
 
-            std::cout << "start handling request in thread: " << std::this_thread::get_id() << std::endl;
+            std::function<messages::Response()> handleRequest = [&](){
+                return getResponse(req_msg);
+                };
 
-            resp_msg = getResponse(req_msg);
+            resp_msg = cache_->getValueAndRefreshIfNeed(req_msg.path, handleRequest);
         }
     }
     catch (std::exception& e) {
-        std::cerr << "Exception in RequestHandler: " << e.what() << std::endl;
+        log_->error("[RequestHandler::operator()] exception caught '", e.what(), "' in thread: ", std::this_thread::get_id());
         resp_msg.status = getErrorCode(ServerError::INTERNAL_ERROR);
     }
 
     Encoder::Serialize(resp_msg, response_stream);
     sendResponse(response_stream);
+    client_socket_->close();
 
-    std::cout << "request handling in thread: " << std::this_thread::get_id() << " finished with status: " << resp_msg.status << std::endl;
+    log_->info("[RequestHandler::operator()] request handling in thread: ", std::this_thread::get_id(), " finished with status: ", resp_msg.status);
 }
 
 int32_t RequestHandler::getRequest(std::stringstream& req_stream) {
+    log_->info("[RequestHandler::getRequest] extracting request from package in thread: ", std::this_thread::get_id());
+
     std::vector<char> buffer(1024);
     boost::system::error_code error;
     std::size_t bytes_read = client_socket_->read_some(boost::asio::buffer(buffer), error);
 
     if (error) {
-        std::cerr << "Error reading from socket: " << error.message() << std::endl;
+        log_->info("[RequestHandler::getRequest] error reading from socket: '", error.message(), "' in thread : ", std::this_thread::get_id());
         return getErrorCode(ServerError::INTERNAL_ERROR);
     }
 
     if (bytes_read == 0) {
+        log_->info("[RequestHandler::getRequest] empty request from socket in thread : ", std::this_thread::get_id());
         return getErrorCode(ServerError::BAD_REQUEST);
     }
 
@@ -66,6 +78,8 @@ int32_t RequestHandler::getRequest(std::stringstream& req_stream) {
 }
 
 messages::Response RequestHandler::getResponse(messages::Request& req) {
+    log_->info("[RequestHandler::getResponse] parsing directory's entries '", req.path ,"' in thread : ", std::this_thread::get_id());
+
     messages::Response resp;
     std::filesystem::path dir_path(req.path.c_str());
 
@@ -83,9 +97,10 @@ messages::Response RequestHandler::getResponse(messages::Request& req) {
 }
 
 void RequestHandler::sendResponse(std::stringstream& req_stream) {
+    log_->info("[RequestHandler::sendResponse] sending result to client in thread : ", std::this_thread::get_id());
     std::size_t bytes_read = client_socket_->send(boost::asio::buffer(req_stream.str()));
 
     if (!bytes_read) {
-        std::cerr << "Error sending response in socket" << std::endl;
+        log_->info("[RequestHandler::sendResponse] couldn't sending response to client in thread : ", std::this_thread::get_id());
     }
 }

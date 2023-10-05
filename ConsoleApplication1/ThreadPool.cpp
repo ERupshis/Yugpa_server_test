@@ -1,5 +1,7 @@
 #include "ThreadPool.h"
 
+#include <sstream>
+
 ThreadPool::~ThreadPool() {
     stopWorkers();
 }
@@ -15,19 +17,17 @@ void ThreadPool::startWorkers() {
                     cond_.wait(lock, [this] { return stop_ || !tasks_.empty(); });
 
                     if (stop_ && tasks_.empty()) {
+                        log_->info("[ThreadPool::startWorkers] thread '", std::this_thread::get_id(), "' is stopping");
                         return;
                     }
 
+
+                    log_->info("[ThreadPool::startWorkers] thread '", std::this_thread::get_id(), "' is extracting task from queue");
                     task = std::move(tasks_.front());
                     tasks_.pop();
                 }
 
-                try {
-                    task();
-                }
-                catch (std::exception& e) {
-                    std::cout << "worker has exception during performing task: " << e.what() << std::endl;
-                }
+                task();
             }
             }
         );
@@ -35,6 +35,7 @@ void ThreadPool::startWorkers() {
 }
 
 void ThreadPool::stopWorkers() {
+    log_->info("[ThreadPool::stopWorkers] pool is finishing execution");
     {
         std::unique_lock<std::mutex> lock(mu_);
         stop_ = true;
@@ -47,5 +48,3 @@ void ThreadPool::stopWorkers() {
 
     workers_.clear();
 }
-
-
