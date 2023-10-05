@@ -35,7 +35,7 @@ int main() {
     }
     catch (std::exception& e) {
         if (g_shutdownFlag == 0) {
-            std::cerr << "Exception: " << e.what() << std::endl;
+            log->error("[main] exception caought:", e.what());
         }
     }
 

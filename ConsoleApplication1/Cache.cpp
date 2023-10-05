@@ -3,13 +3,13 @@
 
 messages::Response Cache::getValueAndRefreshIfNeed(const std::string& key, std::function<messages::Response()>& callback) {
 	if (hasValue(key)) {
-		log_->info("[Cache::getValueAndRefreshIfNeed] found valid value in cache for key: ", key);
+		log_->info("[Cache::getValueAndRefreshIfNeed] found valid value in cache for key: '", key, "' in thread: ", std::this_thread::get_id());
 		return getValue(key, nullptr);
 	}
 
 	const std::lock_guard<std::mutex> lock(mu_);
 	cache_[key];
-	log_->info("[Cache::getValueAndRefreshIfNeed] new key was added: ", key);
+	log_->info("[Cache::getValueAndRefreshIfNeed] new key was added: '", key, "' in thread: ", std::this_thread::get_id());
 	return getValue(key, &callback);
 }
 
@@ -19,7 +19,7 @@ messages::Response Cache::getValue(const std::string& key, std::function<message
 	if (callback) {
 		cache_[key].val = (*callback)();
 		cache_[key].timestamp = std::chrono::system_clock::now();
-		log_->info("[Cache::getValue] value was refreshed for key: ", key);
+		log_->info("[Cache::getValue] value was refreshed for key: '", key, "' in thread: ", std::this_thread::get_id());
 	}
 
 	return cache_.at(key).val;

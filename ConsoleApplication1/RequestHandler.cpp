@@ -54,7 +54,7 @@ void RequestHandler::operator()() {
 }
 
 int32_t RequestHandler::getRequest(std::stringstream& req_stream) {
-    log_->info("[RequestHandler::getRequest] extracting request from package in thread: ", std::this_thread::get_id());
+    log_->info("[RequestHandler::getRequest] extracting request from message in thread: ", std::this_thread::get_id());
 
     std::vector<char> buffer(1024);
     boost::system::error_code error;
