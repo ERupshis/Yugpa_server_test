@@ -50,6 +50,10 @@ void RequestHandler::operator()() {
     catch (std::exception& e) {
         log_->error("[RequestHandler::operator()] exception caught '", e.what(), "' in thread: ", std::this_thread::get_id());
         resp_msg.status = getErrorCode(ServerError::INTERNAL_ERROR);
+
+        Encoder::Serialize(resp_msg, response_stream);
+        sendResponse(response_stream);
+        client_socket_->close();
     }
 }
 
@@ -83,15 +87,21 @@ messages::Response RequestHandler::getResponse(messages::Request& req) {
     messages::Response resp;
     std::filesystem::path dir_path(req.path.c_str());
 
-    for (const auto& entry : std::filesystem::directory_iterator(dir_path)) {
-        resp.directory_entries[entry.path().filename().string()] = entry.is_directory()
-            ? messages::EntryType::DIRECTORY 
-            : messages::EntryType::FILE;
-    }
+    try {
+        for (const auto& entry : std::filesystem::directory_iterator(dir_path)) {
+            resp.directory_entries[entry.path().filename().string()] = entry.is_directory()
+                ? messages::EntryType::DIRECTORY
+                : messages::EntryType::FILE;
+        }
 
-    resp.status = resp.directory_entries.empty()
-        ? getErrorCode(ServerError::BAD_REQUEST)
-        : getErrorCode(ServerError::OK);
+        resp.status = resp.directory_entries.empty()
+            ? getErrorCode(ServerError::BAD_REQUEST)
+            : getErrorCode(ServerError::OK);
+    } 
+    catch (std::exception& e) {
+        log_->info("[RequestHandler::getResponse] failed to handle directory '", req.path, "' in thread : ", std::this_thread::get_id());
+        resp.status = getErrorCode(ServerError::INTERNAL_ERROR);
+    }
 
     return resp;
 }
