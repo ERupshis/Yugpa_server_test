@@ -50,10 +50,6 @@ void RequestHandler::operator()() {
     catch (std::exception& e) {
         log_->error("[RequestHandler::operator()] exception caught '", e.what(), "' in thread: ", std::this_thread::get_id());
         resp_msg.status = getErrorCode(ServerError::INTERNAL_ERROR);
-
-        Encoder::Serialize(resp_msg, response_stream);
-        sendResponse(response_stream);
-        client_socket_->close();
     }
 }
 
