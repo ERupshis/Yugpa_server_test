@@ -40,17 +40,17 @@ void RequestHandler::operator()() {
 
             resp_msg = cache_->getValueAndRefreshIfNeed(req_msg.path, handleRequest);
         }
+
+        Encoder::Serialize(resp_msg, response_stream);
+        sendResponse(response_stream);
+        client_socket_->close();
+
+        log_->info("[RequestHandler::operator()] request handling in thread: ", std::this_thread::get_id(), " finished with status: ", resp_msg.status);
     }
     catch (std::exception& e) {
         log_->error("[RequestHandler::operator()] exception caught '", e.what(), "' in thread: ", std::this_thread::get_id());
         resp_msg.status = getErrorCode(ServerError::INTERNAL_ERROR);
     }
-
-    Encoder::Serialize(resp_msg, response_stream);
-    sendResponse(response_stream);
-    client_socket_->close();
-
-    log_->info("[RequestHandler::operator()] request handling in thread: ", std::this_thread::get_id(), " finished with status: ", resp_msg.status);
 }
 
 int32_t RequestHandler::getRequest(std::stringstream& req_stream) {
